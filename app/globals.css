@@ -23,6 +23,7 @@
   --c-red:       #ef4444;
   --c-red-bg:    rgba(239,68,68,0.08);
   --c-blue:      #3b82f6;
+  --c-danger:    var(--c-red);
   color-scheme: dark;
 }
 
@@ -44,6 +45,7 @@
   --c-red:       #f87171;
   --c-red-bg:    rgba(248,113,113,0.08);
   --c-blue:      #60a5fa;
+  --c-danger:    var(--c-red);
   color-scheme: dark;
 }
 
@@ -65,6 +67,7 @@
   --c-red:       #f87171;
   --c-red-bg:    rgba(248,113,113,0.08);
   --c-blue:      #60a5fa;
+  --c-danger:    var(--c-red);
   color-scheme: dark;
 }
 
@@ -86,6 +89,7 @@
   --c-red:       #dc2626;
   --c-red-bg:    rgba(220,38,38,0.06);
   --c-blue:      #2563eb;
+  --c-danger:    var(--c-red);
   color-scheme: light;
 }
 

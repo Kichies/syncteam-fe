@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { groq, GROQ_MODEL } from "@/lib/ai/client";
+import { getGroq, GROQ_MODEL } from "@/lib/ai/client";
 import { RECOMMEND_PROMPT } from "@/lib/ai/prompts";
 import { parseAIJson } from "@/lib/ai/parsers";
 import type { AIMemberRecommendation } from "@/types";
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       .select("user_id, profiles(id, full_name, skills, available_hours)")
       .eq("project_id", input.projectId);
 
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroq().chat.completions.create({
       model: GROQ_MODEL,
       max_tokens: 1024,
       messages: [
