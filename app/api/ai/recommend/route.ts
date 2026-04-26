@@ -12,6 +12,10 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: "ANTHROPIC_API_KEY belum dikonfigurasi di server." }, { status: 500 });
+  }
+
   try {
     const supabase = await createClient();
     const {
@@ -43,7 +47,7 @@ export async function POST(req: NextRequest) {
       .eq("project_id", input.projectId);
 
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 1024,
       messages: [
         {
@@ -70,7 +74,8 @@ export async function POST(req: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
-    console.error("[AI Recommend Error]", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    console.error("[AI Recommend Error]", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

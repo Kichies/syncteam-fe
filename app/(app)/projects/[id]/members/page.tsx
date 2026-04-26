@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Card from "@/components/ui/Card";
+import InviteMemberModal from "@/components/project/InviteMemberModal";
 import type { Profile } from "@/types";
 
 export default async function MembersPage({
@@ -14,6 +15,14 @@ export default async function MembersPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("owner_id")
+    .eq("id", id)
+    .single();
+
+  const isOwner = project?.owner_id === user.id;
 
   const { data: memberRows } = await supabase
     .from("project_members")
@@ -49,6 +58,7 @@ export default async function MembersPage({
               {members.length} anggota · diurutkan berdasarkan XP
             </p>
           </div>
+          {isOwner && <InviteMemberModal projectId={id} />}
         </div>
 
         <div className="space-y-3">
