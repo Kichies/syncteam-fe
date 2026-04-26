@@ -188,10 +188,23 @@ create policy "view all profiles" on public.profiles for select using (true);
 create policy "update own profile" on public.profiles for update using (auth.uid() = id);
 create policy "insert own profile" on public.profiles for insert with check (auth.uid() = id);
 
+-- Helper function: cek membership tanpa trigger RLS (security definer)
+create or replace function public.is_member_of_project(pid uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.project_members
+    where project_id = pid and user_id = auth.uid()
+  );
+$$;
+
 -- PROJECTS
 create policy "members view projects" on public.projects for select using (
-  owner_id = auth.uid() or
-  exists (select 1 from public.project_members where project_id = projects.id and user_id = auth.uid())
+  owner_id = auth.uid() or public.is_member_of_project(id)
 );
 create policy "create project" on public.projects for insert with check (auth.uid() = owner_id);
 create policy "owner update project" on public.projects for update using (owner_id = auth.uid());
@@ -199,30 +212,31 @@ create policy "owner delete project" on public.projects for delete using (owner_
 
 -- PROJECT MEMBERS
 create policy "members view team" on public.project_members for select using (
-  exists (select 1 from public.project_members pm where pm.project_id = project_members.project_id and pm.user_id = auth.uid())
+  user_id = auth.uid() or
+  exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
 create policy "owner manage members" on public.project_members for all using (
-  exists (select 1 from public.projects where id = project_members.project_id and owner_id = auth.uid())
+  exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
 
 -- TASKS
 create policy "members view tasks" on public.tasks for select using (
-  exists (select 1 from public.project_members where project_id = tasks.project_id and user_id = auth.uid())
-  or exists (select 1 from public.projects where id = tasks.project_id and owner_id = auth.uid())
+  public.is_member_of_project(project_id) or
+  exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
 create policy "members create tasks" on public.tasks for insert with check (
-  exists (select 1 from public.project_members where project_id = tasks.project_id and user_id = auth.uid())
-  or exists (select 1 from public.projects where id = tasks.project_id and owner_id = auth.uid())
+  public.is_member_of_project(project_id) or
+  exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
 create policy "assignee or owner update task" on public.tasks for update using (
   assigned_to = auth.uid()
-  or exists (select 1 from public.projects where id = tasks.project_id and owner_id = auth.uid())
+  or exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
 
 -- AI SUGGESTIONS
 create policy "members view suggestions" on public.ai_suggestions for select using (
-  exists (select 1 from public.project_members where project_id = ai_suggestions.project_id and user_id = auth.uid())
-  or exists (select 1 from public.projects where id = ai_suggestions.project_id and owner_id = auth.uid())
+  public.is_member_of_project(project_id) or
+  exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
 
 -- REWARD HISTORY
@@ -230,6 +244,6 @@ create policy "view own rewards" on public.reward_history for select using (user
 
 -- ROADMAPS
 create policy "members view roadmap" on public.roadmaps for select using (
-  exists (select 1 from public.project_members where project_id = roadmaps.project_id and user_id = auth.uid())
-  or exists (select 1 from public.projects where id = roadmaps.project_id and owner_id = auth.uid())
+  public.is_member_of_project(project_id) or
+  exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
