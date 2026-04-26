@@ -7,21 +7,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
 }
 
-const variantClass: Record<string, string> = {
-  primary:
-    "bg-[#C9A96E] text-[#0E0E0F] font-bold hover:bg-[#b8935a] shadow-lg shadow-[#C9A96E]/20",
-  secondary:
-    "bg-[#2A2A2B] text-[#F5F4F0] font-semibold hover:bg-neutral-700 border border-[#2A2A2B]",
-  ghost: "text-[#9CA3AF] hover:text-[#F5F4F0] hover:bg-[#2A2A2B]",
-  danger: "bg-[#EF4444]/20 text-[#EF4444] hover:bg-[#EF4444]/30 border border-[#EF4444]/30",
-};
-
-const sizeClass: Record<string, string> = {
-  sm: "px-3 py-1.5 text-xs rounded-md",
-  md: "px-4 py-2.5 text-sm rounded-lg",
-  lg: "px-6 py-3 text-base rounded-xl",
-};
-
 export default function Button({
   variant = "primary",
   size = "md",
@@ -29,12 +14,46 @@ export default function Button({
   children,
   disabled,
   className = "",
+  style,
   ...props
 }: ButtonProps) {
+  const base =
+    "inline-flex items-center justify-center gap-2 font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed rounded-lg select-none";
+
+  const sizes: Record<string, string> = {
+    sm: "px-3 py-1.5 text-xs",
+    md: "px-4 py-2 text-sm",
+    lg: "px-5 py-2.5 text-sm",
+  };
+
+  const variantStyle: Record<string, React.CSSProperties> = {
+    primary: {
+      background: "var(--c-accent)",
+      color: "#000",
+      border: "1px solid transparent",
+    },
+    secondary: {
+      background: "var(--c-raised)",
+      color: "var(--c-text)",
+      border: "1px solid var(--c-border)",
+    },
+    ghost: {
+      background: "transparent",
+      color: "var(--c-muted)",
+      border: "1px solid transparent",
+    },
+    danger: {
+      background: "var(--c-red-bg)",
+      color: "var(--c-red)",
+      border: "1px solid rgba(239,68,68,0.20)",
+    },
+  };
+
   return (
     <button
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variantClass[variant]} ${sizeClass[size]} ${className}`}
+      className={`${base} ${sizes[size]} ${className}`}
+      style={{ ...variantStyle[variant], ...style }}
       {...props}
     >
       {loading && <Spinner size="sm" />}

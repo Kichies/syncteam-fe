@@ -1,97 +1,97 @@
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════════
-   THEME TOKENS — 4 themes via data-theme attribute
-═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   THEMES — via data-theme on <html>
+═══════════════════════════════════════════ */
 
 :root,
 [data-theme="obsidian"] {
-  --c-bg:        #0C0C0D;
-  --c-surface:   #111113;
-  --c-raised:    #1A1A1C;
-  --c-border:    #252527;
-  --c-text:      #FAFAF9;
-  --c-muted:     #71717A;
-  --c-faint:     #3F3F46;
+  --c-bg:        #000000;
+  --c-surface:   #0a0a0a;
+  --c-raised:    #111111;
+  --c-border:    #1f1f1f;
+  --c-text:      #ededed;
+  --c-muted:     #888888;
+  --c-faint:     #333333;
   --c-accent:    #C9A96E;
-  --c-accent-bg: rgba(201, 169, 110, 0.10);
-  --c-accent-bd: rgba(201, 169, 110, 0.22);
-  --c-green:     #22C55E;
-  --c-green-bg:  rgba(34, 197, 94, 0.10);
-  --c-amber:     #F59E0B;
-  --c-amber-bg:  rgba(245, 158, 11, 0.10);
-  --c-red:       #EF4444;
-  --c-red-bg:    rgba(239, 68, 68, 0.10);
-  --c-blue:      #60A5FA;
+  --c-accent-bg: rgba(201,169,110,0.08);
+  --c-accent-bd: rgba(201,169,110,0.20);
+  --c-green:     #22c55e;
+  --c-green-bg:  rgba(34,197,94,0.08);
+  --c-amber:     #f59e0b;
+  --c-amber-bg:  rgba(245,158,11,0.08);
+  --c-red:       #ef4444;
+  --c-red-bg:    rgba(239,68,68,0.08);
+  --c-blue:      #3b82f6;
   color-scheme: dark;
 }
 
 [data-theme="midnight"] {
-  --c-bg:        #060A14;
-  --c-surface:   #0B1020;
-  --c-raised:    #111828;
-  --c-border:    #1C2840;
-  --c-text:      #E2E8F0;
-  --c-muted:     #7B8DA6;
-  --c-faint:     #374863;
-  --c-accent:    #5B8DEF;
-  --c-accent-bg: rgba(91, 141, 239, 0.10);
-  --c-accent-bd: rgba(91, 141, 239, 0.22);
-  --c-green:     #34D399;
-  --c-green-bg:  rgba(52, 211, 153, 0.10);
-  --c-amber:     #FBBF24;
-  --c-amber-bg:  rgba(251, 191, 36, 0.10);
-  --c-red:       #F87171;
-  --c-red-bg:    rgba(248, 113, 113, 0.10);
-  --c-blue:      #5B8DEF;
+  --c-bg:        #03060f;
+  --c-surface:   #080e1c;
+  --c-raised:    #0e1628;
+  --c-border:    #182235;
+  --c-text:      #e2e8f0;
+  --c-muted:     #64748b;
+  --c-faint:     #1e2d45;
+  --c-accent:    #60a5fa;
+  --c-accent-bg: rgba(96,165,250,0.08);
+  --c-accent-bd: rgba(96,165,250,0.20);
+  --c-green:     #34d399;
+  --c-green-bg:  rgba(52,211,153,0.08);
+  --c-amber:     #fbbf24;
+  --c-amber-bg:  rgba(251,191,36,0.08);
+  --c-red:       #f87171;
+  --c-red-bg:    rgba(248,113,113,0.08);
+  --c-blue:      #60a5fa;
   color-scheme: dark;
 }
 
 [data-theme="forest"] {
-  --c-bg:        #040D07;
-  --c-surface:   #081410;
-  --c-raised:    #0E1D18;
-  --c-border:    #162D22;
-  --c-text:      #ECFDF5;
-  --c-muted:     #6EAA88;
-  --c-faint:     #2D5040;
-  --c-accent:    #34D399;
-  --c-accent-bg: rgba(52, 211, 153, 0.10);
-  --c-accent-bd: rgba(52, 211, 153, 0.22);
-  --c-green:     #34D399;
-  --c-green-bg:  rgba(52, 211, 153, 0.10);
-  --c-amber:     #FBBF24;
-  --c-amber-bg:  rgba(251, 191, 36, 0.10);
-  --c-red:       #F87171;
-  --c-red-bg:    rgba(248, 113, 113, 0.10);
-  --c-blue:      #60A5FA;
+  --c-bg:        #020805;
+  --c-surface:   #050f08;
+  --c-raised:    #091510;
+  --c-border:    #0f2118;
+  --c-text:      #ecfdf5;
+  --c-muted:     #4d7c62;
+  --c-faint:     #163d28;
+  --c-accent:    #34d399;
+  --c-accent-bg: rgba(52,211,153,0.08);
+  --c-accent-bd: rgba(52,211,153,0.20);
+  --c-green:     #34d399;
+  --c-green-bg:  rgba(52,211,153,0.08);
+  --c-amber:     #fbbf24;
+  --c-amber-bg:  rgba(251,191,36,0.08);
+  --c-red:       #f87171;
+  --c-red-bg:    rgba(248,113,113,0.08);
+  --c-blue:      #60a5fa;
   color-scheme: dark;
 }
 
 [data-theme="dawn"] {
-  --c-bg:        #F4F4F5;
-  --c-surface:   #FFFFFF;
-  --c-raised:    #FAFAFA;
-  --c-border:    #E4E4E7;
-  --c-text:      #18181B;
-  --c-muted:     #71717A;
-  --c-faint:     #A1A1AA;
-  --c-accent:    #7C3AED;
-  --c-accent-bg: rgba(124, 58, 237, 0.08);
-  --c-accent-bd: rgba(124, 58, 237, 0.18);
-  --c-green:     #059669;
-  --c-green-bg:  rgba(5, 150, 105, 0.08);
-  --c-amber:     #D97706;
-  --c-amber-bg:  rgba(217, 119, 6, 0.08);
-  --c-red:       #DC2626;
-  --c-red-bg:    rgba(220, 38, 38, 0.08);
-  --c-blue:      #2563EB;
+  --c-bg:        #fafafa;
+  --c-surface:   #ffffff;
+  --c-raised:    #f5f5f5;
+  --c-border:    #e5e5e5;
+  --c-text:      #111111;
+  --c-muted:     #666666;
+  --c-faint:     #d4d4d4;
+  --c-accent:    #7c3aed;
+  --c-accent-bg: rgba(124,58,237,0.06);
+  --c-accent-bd: rgba(124,58,237,0.16);
+  --c-green:     #16a34a;
+  --c-green-bg:  rgba(22,163,74,0.06);
+  --c-amber:     #d97706;
+  --c-amber-bg:  rgba(217,119,6,0.06);
+  --c-red:       #dc2626;
+  --c-red-bg:    rgba(220,38,38,0.06);
+  --c-blue:      #2563eb;
   color-scheme: light;
 }
 
-/* ═══════════════════════════════════════════════════
-   TAILWIND v4 TOKEN MAPPING  (inline = runtime vars)
-═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   TAILWIND MAPPING
+═══════════════════════════════════════════ */
 
 @theme inline {
   --color-canvas:   var(--c-bg);
@@ -105,12 +105,11 @@
   --color-success:  var(--c-green);
   --color-caution:  var(--c-amber);
   --color-danger:   var(--c-red);
-  --color-info:     var(--c-blue);
 }
 
-/* ═══════════════════════════════════════════════════
-   BASE
-═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   BASE RESET
+═══════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -126,9 +125,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--c-faint); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--c-muted); }
+
 ::selection { background: var(--c-accent-bg); color: var(--c-text); }
+
+/* ═══════════════════════════════════════════
+   VERCEL-STYLE UTILITIES
+═══════════════════════════════════════════ */
+
+/* Card hover transition */
+.card-hover {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.card-hover:hover {
+  border-color: var(--c-faint) !important;
+}
+
+/* Subtle glow on focus inputs */
+.input-field:focus {
+  outline: none;
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 3px var(--c-accent-bg);
+}

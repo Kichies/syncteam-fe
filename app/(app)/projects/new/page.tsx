@@ -4,20 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createProjectSchema } from "@/lib/validations/schemas";
-import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export default function NewProjectPage() {
   const router = useRouter();
   const supabase = createClient();
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    start_date: "",
-    end_date: "",
-  });
+  const [form, setForm] = useState({ name: "", description: "", start_date: "", end_date: "" });
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
@@ -28,15 +23,11 @@ export default function NewProjectPage() {
     e.preventDefault();
     const result = createProjectSchema.safeParse(form);
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
-      result.error.issues.forEach((issue) => {
-        const path = issue.path[0] as string;
-        fieldErrors[path] = issue.message;
-      });
-      setErrors(fieldErrors);
+      const fe: Record<string, string> = {};
+      result.error.issues.forEach((i) => { fe[i.path[0] as string] = i.message; });
+      setErrors(fe);
       return;
     }
-
     setIsSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/login"); return; }
@@ -47,27 +38,28 @@ export default function NewProjectPage() {
       .select("id")
       .single();
 
-    if (error) {
-      setErrors({ name: error.message });
-      setIsSaving(false);
-      return;
-    }
+    if (error) { setErrors({ name: error.message }); setIsSaving(false); return; }
 
-    await supabase
-      .from("project_members")
-      .insert({ project_id: data.id, user_id: user.id });
-
+    await supabase.from("project_members").insert({ project_id: data.id, user_id: user.id });
     router.push(`/projects/${data.id}/board`);
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold text-[#F5F4F0] mb-2">Buat Proyek Baru</h1>
-      <p className="text-[#9CA3AF] text-sm mb-8">
-        Isi detail proyek tim Anda. AI akan membantu membuat roadmap dan task breakdown.
-      </p>
+    <div className="p-8 max-w-xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--c-text)" }}>
+          Buat Proyek Baru
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--c-muted)" }}>
+          Isi detail proyek — AI akan siap membantu membuat roadmap dan task breakdown.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl p-6 space-y-5"
+        style={{ background: "var(--c-surface)", border: "1px solid var(--c-border)" }}
+      >
         <Input
           label="Nama Proyek"
           placeholder="Contoh: E-Commerce MVP"
@@ -76,18 +68,25 @@ export default function NewProjectPage() {
           error={errors.name}
           required
         />
+
         <div>
-          <label className="block text-xs text-[#9CA3AF] font-bold mb-1 uppercase tracking-wider">
+          <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--c-muted)" }}>
             Deskripsi
           </label>
           <textarea
-            placeholder="Deskripsi singkat tujuan proyek..."
+            placeholder="Deskripsi singkat tujuan dan scope proyek ini..."
             value={form.description}
             onChange={set("description")}
             rows={3}
-            className="w-full bg-[#1A1A1B] border border-[#2A2A2B] rounded-lg p-3 text-[#F5F4F0] placeholder-[#9CA3AF]/50 focus:outline-none focus:border-[#C9A96E] transition-colors resize-none"
+            className="w-full rounded-lg px-3 py-2 text-sm resize-none input-field"
+            style={{
+              background: "var(--c-raised)",
+              border: "1px solid var(--c-border)",
+              color: "var(--c-text)",
+            }}
           />
         </div>
+
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Tanggal Mulai"
@@ -106,9 +105,20 @@ export default function NewProjectPage() {
             required
           />
         </div>
-        <Button type="submit" loading={isSaving} className="w-full">
-          Buat Proyek
-        </Button>
+
+        <div className="flex gap-3 pt-1">
+          <Button
+            type="button"
+            variant="secondary"
+            className="flex-1"
+            onClick={() => router.back()}
+          >
+            Batal
+          </Button>
+          <Button type="submit" loading={isSaving} className="flex-1">
+            Buat Proyek
+          </Button>
+        </div>
       </form>
     </div>
   );

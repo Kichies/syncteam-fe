@@ -3,19 +3,21 @@ interface BadgeProps {
   variant?: "default" | "gold" | "backlog" | "in_progress" | "completed" | "danger";
 }
 
-const variantClass: Record<string, string> = {
-  default: "bg-neutral-800 text-neutral-300",
-  gold: "bg-[#C9A96E]/20 text-[#C9A96E]",
-  backlog: "bg-[#6B7280]/20 text-[#6B7280]",
-  in_progress: "bg-[#F59E0B]/20 text-[#F59E0B]",
-  completed: "bg-[#10B981]/20 text-[#10B981]",
-  danger: "bg-[#EF4444]/20 text-[#EF4444]",
+const STYLES: Record<string, { bg: string; color: string; border: string }> = {
+  default:     { bg: "rgba(255,255,255,0.06)", color: "var(--c-muted)",  border: "rgba(255,255,255,0.08)" },
+  gold:        { bg: "var(--c-accent-bg)",     color: "var(--c-accent)", border: "var(--c-accent-bd)" },
+  backlog:     { bg: "rgba(136,136,136,0.10)", color: "var(--c-muted)",  border: "rgba(136,136,136,0.15)" },
+  in_progress: { bg: "rgba(245,158,11,0.10)",  color: "var(--c-amber)",  border: "rgba(245,158,11,0.20)" },
+  completed:   { bg: "rgba(34,197,94,0.10)",   color: "var(--c-green)",  border: "rgba(34,197,94,0.20)" },
+  danger:      { bg: "var(--c-red-bg)",         color: "var(--c-red)",    border: "rgba(239,68,68,0.20)" },
 };
 
 export default function Badge({ children, variant = "default" }: BadgeProps) {
+  const s = STYLES[variant] ?? STYLES.default;
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${variantClass[variant]}`}
+      className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider"
+      style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}
     >
       {children}
     </span>
