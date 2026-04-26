@@ -1,33 +1,37 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
-const cormorant = Cormorant_Garamond({ 
-  subsets: ["latin"], 
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
-  variable: '--font-cormorant'
+  variable: "--font-cormorant",
 });
 
-const dmSans = DM_Sans({ 
-  subsets: ["latin"], 
-  weight: ["300", "400", "500"],
-  variable: '--font-dm-sans'
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-dm-sans",
 });
 
 export const metadata: Metadata = {
-  title: "SyncTeam AI — Dashboard",
-  description: "AI-Powered Project Management",
+  title: "SyncTeam — AI Project Management",
+  description: "Kolaborasi tim berbasis AI untuk mahasiswa Teknik Informatika",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="id" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('st-theme')||'obsidian';document.documentElement.setAttribute('data-theme',t);}catch(e){}`,
+          }}
+        />
+      </head>
       <body className={`${cormorant.variable} ${dmSans.variable}`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

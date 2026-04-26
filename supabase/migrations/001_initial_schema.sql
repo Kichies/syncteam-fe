@@ -247,3 +247,57 @@ create policy "members view roadmap" on public.roadmaps for select using (
   public.is_member_of_project(project_id) or
   exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
 );
+
+-- Fungsi security definer: query project_members tanpa trigger RLS                     
+  create or replace function public.is_member_of_project(pid uuid)                                                                              
+  returns boolean                                                                                                                               
+  language sql                                                                                                                                  
+  security definer                                                                                                                              
+  stable                                                                                                                                      
+  set search_path = public
+  as $$
+    select exists (
+      select 1 from public.project_members
+      where project_id = pid and user_id = auth.uid()
+    );
+  $$;
+
+  -- Fix PROJECTS: pakai fungsi, bukan subquery langsung
+  drop policy if exists "members view projects" on public.projects;
+  create policy "members view projects" on public.projects for select using (
+    owner_id = auth.uid() or public.is_member_of_project(id)
+  );
+
+  -- Fix PROJECT_MEMBERS: hapus self-referencing policy
+  drop policy if exists "members view team" on public.project_members;
+  create policy "members view team" on public.project_members for select using (
+    user_id = auth.uid() or
+    exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
+  );
+
+  -- Fix TASKS
+  drop policy if exists "members view tasks" on public.tasks;
+  create policy "members view tasks" on public.tasks for select using (
+    public.is_member_of_project(project_id) or
+    exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
+  );
+
+  drop policy if exists "members create tasks" on public.tasks;
+  create policy "members create tasks" on public.tasks for insert with check (
+    public.is_member_of_project(project_id) or
+    exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
+  );
+
+  -- Fix AI SUGGESTIONS
+  drop policy if exists "members view suggestions" on public.ai_suggestions;
+  create policy "members view suggestions" on public.ai_suggestions for select using (
+    public.is_member_of_project(project_id) or
+    exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
+  );
+
+  -- Fix ROADMAPS
+  drop policy if exists "members view roadmap" on public.roadmaps;
+  create policy "members view roadmap" on public.roadmaps for select using (
+    public.is_member_of_project(project_id) or
+    exists (select 1 from public.projects p where p.id = project_id and p.owner_id = auth.uid())
+  );
