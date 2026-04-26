@@ -10,9 +10,19 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const forwardedHost = request.headers.get("x-forwarded-host");
+      const baseUrl =
+        process.env.NODE_ENV === "development" || !forwardedHost
+          ? origin
+          : `https://${forwardedHost}`;
+      return NextResponse.redirect(`${baseUrl}${next}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const baseUrl =
+    process.env.NODE_ENV === "development" || !forwardedHost
+      ? origin
+      : `https://${forwardedHost}`;
+  return NextResponse.redirect(`${baseUrl}/login?error=auth_callback_failed`);
 }
