@@ -1,10 +1,7 @@
-import type { Message } from "@anthropic-ai/sdk/resources";
+import type Groq from "groq-sdk";
 
-export function parseAIJson<T>(message: Message): T {
-  const text = message.content
-    .filter((b) => b.type === "text")
-    .map((b) => (b as { type: "text"; text: string }).text)
-    .join("");
+export function parseAIJson<T>(completion: Groq.Chat.ChatCompletion): T {
+  const text = completion.choices[0]?.message?.content ?? "";
   const cleaned = text
     .replace(/```json\n?/g, "")
     .replace(/```\n?/g, "")

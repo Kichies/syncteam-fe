@@ -11,9 +11,7 @@ export default async function ProjectLayout({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { data: project } = await supabase
@@ -42,30 +40,60 @@ export default async function ProjectLayout({
     { href: `/projects/${id}/reports`, label: "Laporan", icon: "◑" },
   ];
 
+  const statusLabel: Record<string, string> = {
+    active: "Aktif",
+    completed: "Selesai",
+    archived: "Diarsipkan",
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <header className="bg-[#0E0E0F] border-b border-[#2A2A2B] px-6 py-3 shrink-0">
+      <header
+        className="px-6 py-3 shrink-0"
+        style={{
+          background: "var(--c-surface)",
+          borderBottom: "1px solid var(--c-border)",
+        }}
+      >
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <h1 className="text-sm font-bold text-[#F5F4F0] truncate max-w-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <h1
+              className="text-sm font-bold truncate max-w-xs"
+              style={{ color: "var(--c-text)" }}
+            >
               {project.name}
             </h1>
             {isOwner && (
-              <span className="text-[9px] bg-[#C9A96E]/12 text-[#C9A96E] border border-[#C9A96E]/25 rounded px-1.5 py-0.5 uppercase tracking-wider font-bold shrink-0">
+              <span
+                className="text-[9px] rounded px-1.5 py-0.5 uppercase tracking-wider font-bold shrink-0"
+                style={{
+                  background: "var(--c-accent-bg)",
+                  color: "var(--c-accent)",
+                  border: "1px solid var(--c-accent-bd)",
+                }}
+              >
                 Owner
               </span>
             )}
           </div>
           <span
-            className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${
-              project.status === "active"
-                ? "bg-[#10B981]/12 text-[#10B981]"
-                : project.status === "completed"
-                ? "bg-[#C9A96E]/12 text-[#C9A96E]"
-                : "bg-[#9CA3AF]/12 text-[#9CA3AF]"
-            }`}
+            className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0"
+            style={{
+              background:
+                project.status === "active"
+                  ? "var(--c-green-bg)"
+                  : project.status === "completed"
+                  ? "var(--c-accent-bg)"
+                  : "rgba(156,163,175,0.12)",
+              color:
+                project.status === "active"
+                  ? "var(--c-green)"
+                  : project.status === "completed"
+                  ? "var(--c-accent)"
+                  : "var(--c-muted)",
+            }}
           >
-            {project.status}
+            {statusLabel[project.status] ?? project.status}
           </span>
         </div>
         <TabNav tabs={tabs} />

@@ -19,11 +19,13 @@ export default function TabNav({ tabs }: { tabs: Tab[] }) {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
-              isActive
-                ? "bg-[#C9A96E]/12 text-[#C9A96E] border border-[#C9A96E]/25 font-semibold"
-                : "text-[#9CA3AF] hover:text-[#F5F4F0] hover:bg-[#2A2A2B]"
-            }`}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all"
+            style={{
+              background: isActive ? "var(--c-accent-bg)" : "transparent",
+              color: isActive ? "var(--c-accent)" : "var(--c-muted)",
+              border: isActive ? "1px solid var(--c-accent-bd)" : "1px solid transparent",
+              fontWeight: isActive ? "600" : "400",
+            }}
           >
             {tab.icon && <span>{tab.icon}</span>}
             {tab.label}

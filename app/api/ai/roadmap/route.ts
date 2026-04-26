@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { anthropic } from "@/lib/ai/client";
+import { groq, GROQ_MODEL } from "@/lib/ai/client";
 import { ROADMAP_PROMPT } from "@/lib/ai/prompts";
 import { parseAIJson } from "@/lib/ai/parsers";
 import type { Json } from "@/lib/supabase/types";
@@ -26,15 +26,13 @@ interface SprintData {
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY belum dikonfigurasi di server." }, { status: 500 });
+  if (!process.env.GROQ_API_KEY) {
+    return NextResponse.json({ error: "GROQ_API_KEY belum dikonfigurasi di server." }, { status: 500 });
   }
 
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json() as unknown;
@@ -55,8 +53,8 @@ export async function POST(req: NextRequest) {
       .select("user_id, profiles(id, full_name, skills, available_hours, role)")
       .eq("project_id", input.projectId);
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+    const completion = await groq.chat.completions.create({
+      model: GROQ_MODEL,
       max_tokens: 4096,
       messages: [
         {
@@ -70,7 +68,7 @@ export async function POST(req: NextRequest) {
       sprints: SprintData[];
       totalEstimatedHours: number;
       riskFactors: string[];
-    }>(message);
+    }>(completion);
 
     await service.from("roadmaps").insert({
       project_id: input.projectId,
@@ -100,6 +98,6 @@ export async function POST(req: NextRequest) {
     }
     const msg = error instanceof Error ? error.message : "Unknown error";
     console.error("[AI Roadmap Error]", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: "Gagal generate roadmap. Coba lagi." }, { status: 500 });
   }
 }

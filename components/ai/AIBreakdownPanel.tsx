@@ -77,19 +77,40 @@ export default function AIBreakdownPanel({
   const pending = suggestions.filter((s) => s.is_accepted === null);
 
   return (
-    <aside className="w-72 shrink-0 bg-[#0E0E0F] border-l border-[#2A2A2B] flex flex-col overflow-hidden">
-      <div className="px-4 py-3 border-b border-[#2A2A2B] shrink-0 flex items-center gap-2">
-        <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold text-[#C9A96E] bg-[#C9A96E]/10 border border-[#C9A96E]/25 rounded px-2 py-0.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C9A96E] inline-block" />
+    <aside
+      className="w-72 shrink-0 flex flex-col overflow-hidden"
+      style={{
+        background: "var(--c-surface)",
+        borderLeft: "1px solid var(--c-border)",
+      }}
+    >
+      {/* Header */}
+      <div
+        className="px-4 py-3 shrink-0 flex items-center gap-2"
+        style={{ borderBottom: "1px solid var(--c-border)" }}
+      >
+        <span
+          className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold rounded px-2 py-1"
+          style={{
+            background: "var(--c-accent-bg)",
+            color: "var(--c-accent)",
+            border: "1px solid var(--c-accent-bd)",
+          }}
+        >
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
+            <path d="M4 0l.9 2.7H8L5.5 4.4l.9 2.7L4 5.5 1.6 7.1l.9-2.7L0 2.7h3.1z"/>
+          </svg>
           AI Assistant
         </span>
       </div>
 
       <div className="overflow-y-auto flex-1 flex flex-col">
         {/* Task Breakdown */}
-        <div className="px-4 py-4 border-b border-[#2A2A2B]">
-          <p className="text-xs font-bold text-[#F5F4F0] mb-0.5">Task Breakdown</p>
-          <p className="text-[11px] text-[#9CA3AF] mb-3 leading-relaxed">
+        <div className="px-4 py-4" style={{ borderBottom: "1px solid var(--c-border)" }}>
+          <p className="text-xs font-bold mb-0.5" style={{ color: "var(--c-text)" }}>
+            Task Breakdown
+          </p>
+          <p className="text-[11px] mb-3 leading-relaxed" style={{ color: "var(--c-muted)" }}>
             Deskripsikan fitur/modul, AI akan membuat sub-tasks otomatis.
           </p>
           <textarea
@@ -98,17 +119,37 @@ export default function AIBreakdownPanel({
             placeholder="Contoh: Buat fitur login dengan Google OAuth, session management, dan redirect ke dashboard..."
             rows={4}
             disabled={isBreakdownLoading}
-            className="w-full bg-[#1A1A1B] border border-[#2A2A2B] rounded-lg p-2.5 text-[#F5F4F0] text-xs placeholder-[#9CA3AF]/40 focus:outline-none focus:border-[#C9A96E]/50 transition-colors resize-none disabled:opacity-50 mb-2"
+            className="w-full rounded-lg p-2.5 text-xs placeholder-[var(--c-faint)] focus:outline-none transition-colors resize-none disabled:opacity-50 mb-2"
+            style={{
+              background: "var(--c-raised)",
+              border: "1px solid var(--c-border)",
+              color: "var(--c-text)",
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--c-accent)")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--c-border)")}
           />
+
           {status && (
-            <p className={`text-[11px] mb-2 leading-relaxed ${status.type === "success" ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+            <div
+              className="flex items-start gap-1.5 text-[11px] mb-2 px-2.5 py-2 rounded-lg"
+              style={{
+                color: status.type === "success" ? "var(--c-green)" : "var(--c-danger)",
+                background: status.type === "success" ? "var(--c-green-bg)" : "var(--c-red-bg)",
+                border: `1px solid ${status.type === "success" ? "var(--c-green)" : "var(--c-danger)"}22`,
+              }}
+            >
               {status.msg}
-            </p>
+            </div>
           )}
+
           <button
             onClick={handleBreakdown}
             disabled={isBreakdownLoading || description.trim().length < 10}
-            className="w-full bg-[#C9A96E] hover:bg-[#b8935a] text-black text-xs font-bold py-2.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full text-xs font-bold py-2.5 rounded-lg transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style={{
+              background: "var(--c-accent)",
+              color: "var(--c-bg)",
+            }}
           >
             {isBreakdownLoading ? (
               <>
@@ -116,30 +157,54 @@ export default function AIBreakdownPanel({
                 Generating...
               </>
             ) : (
-              "✦ Generate Tasks"
+              <>
+                <svg width="10" height="10" viewBox="0 0 8 8" fill="currentColor">
+                  <path d="M4 0l.9 2.7H8L5.5 4.4l.9 2.7L4 5.5 1.6 7.1l.9-2.7L0 2.7h3.1z"/>
+                </svg>
+                Generate Tasks
+              </>
             )}
           </button>
         </div>
 
         {/* Recommend Members */}
-        <div className="px-4 py-4 border-b border-[#2A2A2B]">
-          <p className="text-xs font-bold text-[#F5F4F0] mb-0.5">Rekomendasi Anggota</p>
-          <p className="text-[11px] text-[#9CA3AF] mb-3 leading-relaxed">
+        <div className="px-4 py-4" style={{ borderBottom: "1px solid var(--c-border)" }}>
+          <p className="text-xs font-bold mb-0.5" style={{ color: "var(--c-text)" }}>
+            Rekomendasi Anggota
+          </p>
+          <p className="text-[11px] mb-3 leading-relaxed" style={{ color: "var(--c-muted)" }}>
             AI merekomendasikan siapa yang paling cocok untuk task di Backlog.
           </p>
           <button
             onClick={handleRecommend}
             disabled={isRecommendLoading || backlogTaskIds.length === 0}
-            className="w-full bg-[#1A1A1B] hover:bg-[#2A2A2B] border border-[#2A2A2B] hover:border-[#C9A96E]/40 text-[#C9A96E] text-xs font-bold py-2.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full text-xs font-bold py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style={{
+              background: "var(--c-raised)",
+              border: "1px solid var(--c-border)",
+              color: "var(--c-accent)",
+            }}
+            onMouseEnter={(e) => {
+              if (!isRecommendLoading && backlogTaskIds.length > 0)
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--c-accent-bd)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--c-border)";
+            }}
           >
             {isRecommendLoading ? (
               <>
-                <span className="w-3 h-3 border-2 border-[#C9A96E]/20 border-t-[#C9A96E] rounded-full animate-spin" />
+                <span
+                  className="w-3 h-3 border-2 rounded-full animate-spin"
+                  style={{ borderColor: "var(--c-accent-bd)", borderTopColor: "var(--c-accent)" }}
+                />
                 Menganalisis...
               </>
             ) : (
               <>
-                <span>✦</span>
+                <svg width="10" height="10" viewBox="0 0 8 8" fill="currentColor">
+                  <path d="M4 0l.9 2.7H8L5.5 4.4l.9 2.7L4 5.5 1.6 7.1l.9-2.7L0 2.7h3.1z"/>
+                </svg>
                 Rekomendasikan ({backlogTaskIds.length} task)
               </>
             )}
@@ -148,18 +213,26 @@ export default function AIBreakdownPanel({
 
         {/* AI Suggestions */}
         <div className="px-4 py-4 flex-1">
-          <p className="text-[10px] uppercase tracking-wider font-bold text-[#9CA3AF] mb-3">
+          <p
+            className="text-[10px] uppercase tracking-wider font-bold mb-3"
+            style={{ color: "var(--c-muted)" }}
+          >
             Saran AI{" "}
             {pending.length > 0 && (
-              <span className="text-[#C9A96E] ml-1">({pending.length})</span>
+              <span style={{ color: "var(--c-accent)" }}>({pending.length})</span>
             )}
           </p>
           {pending.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-6 text-center">
-              <div className="w-10 h-10 rounded-full bg-[#C9A96E]/8 border border-[#C9A96E]/15 flex items-center justify-center mb-3">
-                <span className="text-[#C9A96E]">✦</span>
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center mb-3"
+                style={{ background: "var(--c-accent-bg)", border: "1px solid var(--c-accent-bd)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 8 8" fill="var(--c-accent)">
+                  <path d="M4 0l.9 2.7H8L5.5 4.4l.9 2.7L4 5.5 1.6 7.1l.9-2.7L0 2.7h3.1z"/>
+                </svg>
               </div>
-              <p className="text-[#9CA3AF] text-[11px] leading-relaxed">
+              <p className="text-[11px] leading-relaxed" style={{ color: "var(--c-muted)" }}>
                 Generate tasks atau rekomendasi untuk mendapatkan saran AI.
               </p>
             </div>
@@ -168,15 +241,22 @@ export default function AIBreakdownPanel({
               {pending.map((s) => (
                 <div
                   key={s.id}
-                  className="bg-[#1A1A1B] border border-[#2A2A2B] rounded-lg p-3 hover:border-[#C9A96E]/25 transition-colors"
+                  className="rounded-lg p-3 transition-all"
+                  style={{
+                    background: "var(--c-raised)",
+                    border: "1px solid var(--c-border)",
+                  }}
                 >
-                  <span className="text-[9px] uppercase tracking-wide text-[#C9A96E] mb-1 block font-bold">
+                  <span
+                    className="text-[9px] uppercase tracking-wide mb-1 block font-bold"
+                    style={{ color: "var(--c-accent)" }}
+                  >
                     {s.type}
                   </span>
-                  <p className="text-[11px] text-[#F5F4F0] font-medium mb-1 leading-tight">
+                  <p className="text-[11px] font-medium mb-1 leading-tight" style={{ color: "var(--c-text)" }}>
                     {s.title}
                   </p>
-                  <p className="text-[11px] text-[#9CA3AF] line-clamp-3 leading-relaxed">
+                  <p className="text-[11px] line-clamp-3 leading-relaxed" style={{ color: "var(--c-muted)" }}>
                     {s.body}
                   </p>
                 </div>

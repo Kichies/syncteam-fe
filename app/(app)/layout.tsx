@@ -50,10 +50,11 @@ export default async function AppLayout({
   ] as Project[];
 
   return (
-    <div className="h-screen w-screen bg-[#1A1A1B] flex overflow-hidden font-sans">
+    <div className="h-screen w-screen flex overflow-hidden" style={{ background: "var(--c-bg)" }}>
       <Sidebar
         projects={allProjects}
         userName={profile?.full_name ?? user.email ?? "User"}
+        userEmail={user.email}
       />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>

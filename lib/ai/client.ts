@@ -1,2 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
-export const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import Groq from "groq-sdk";
+export const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+export const GROQ_MODEL = "llama-3.3-70b-versatile";

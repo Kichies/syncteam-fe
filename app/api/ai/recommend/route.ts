@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { anthropic } from "@/lib/ai/client";
+import { groq, GROQ_MODEL } from "@/lib/ai/client";
 import { RECOMMEND_PROMPT } from "@/lib/ai/prompts";
 import { parseAIJson } from "@/lib/ai/parsers";
 import type { AIMemberRecommendation } from "@/types";
@@ -12,15 +12,13 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY belum dikonfigurasi di server." }, { status: 500 });
+  if (!process.env.GROQ_API_KEY) {
+    return NextResponse.json({ error: "GROQ_API_KEY belum dikonfigurasi di server." }, { status: 500 });
   }
 
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json() as unknown;
@@ -46,8 +44,8 @@ export async function POST(req: NextRequest) {
       .select("user_id, profiles(id, full_name, skills, available_hours)")
       .eq("project_id", input.projectId);
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+    const completion = await groq.chat.completions.create({
+      model: GROQ_MODEL,
       max_tokens: 1024,
       messages: [
         {
@@ -57,7 +55,7 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    const result = parseAIJson<{ recommendations: AIMemberRecommendation[] }>(message);
+    const result = parseAIJson<{ recommendations: AIMemberRecommendation[] }>(completion);
 
     const suggestionRows = result.recommendations.map((r) => ({
       project_id: input.projectId,
@@ -76,6 +74,6 @@ export async function POST(req: NextRequest) {
     }
     const msg = error instanceof Error ? error.message : "Unknown error";
     console.error("[AI Recommend Error]", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: "Gagal generate rekomendasi. Coba lagi." }, { status: 500 });
   }
 }
