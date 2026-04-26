@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 interface Suggestion {
   id: string;
@@ -9,24 +10,32 @@ interface Suggestion {
   title: string;
   body: string;
   is_accepted: boolean | null;
+  metadata?: Record<string, unknown>;
 }
 
 interface AIBreakdownPanelProps {
   projectId: string;
   suggestions: Suggestion[];
   backlogTaskIds: string[];
+  memberMap: Record<string, string>;
+  taskMap: Record<string, string>;
 }
 
 export default function AIBreakdownPanel({
   projectId,
   suggestions,
   backlogTaskIds,
+  memberMap,
+  taskMap,
 }: AIBreakdownPanelProps) {
   const router = useRouter();
+  const supabase = createClient();
   const [description, setDescription] = useState("");
   const [isBreakdownLoading, setIsBreakdownLoading] = useState(false);
   const [isRecommendLoading, setIsRecommendLoading] = useState(false);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [status, setStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const [localSuggestions, setLocalSuggestions] = useState<Suggestion[]>(suggestions);
 
   const handleBreakdown = async () => {
     if (description.trim().length < 10) return;
@@ -74,7 +83,34 @@ export default function AIBreakdownPanel({
     }
   };
 
-  const pending = suggestions.filter((s) => s.is_accepted === null);
+  const handleAccept = async (suggestion: Suggestion) => {
+    const meta = suggestion.metadata as { taskId?: string; userId?: string } | undefined;
+    if (!meta?.taskId || !meta?.userId) return;
+
+    setAcceptingId(suggestion.id);
+    try {
+      // Assign task ke member yang direkomendasikan
+      await supabase
+        .from("tasks")
+        .update({ assigned_to: meta.userId, status: "in_progress" })
+        .eq("id", meta.taskId);
+
+      // Tandai saran sebagai diterima
+      await supabase
+        .from("ai_suggestions")
+        .update({ is_accepted: true })
+        .eq("id", suggestion.id);
+
+      setLocalSuggestions((prev) =>
+        prev.map((s) => (s.id === suggestion.id ? { ...s, is_accepted: true } : s)),
+      );
+      router.refresh();
+    } finally {
+      setAcceptingId(null);
+    }
+  };
+
+  const pending = localSuggestions.filter((s) => s.is_accepted === null);
 
   return (
     <aside
@@ -146,10 +182,7 @@ export default function AIBreakdownPanel({
             onClick={handleBreakdown}
             disabled={isBreakdownLoading || description.trim().length < 10}
             className="w-full text-xs font-bold py-2.5 rounded-lg transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{
-              background: "var(--c-accent)",
-              color: "var(--c-bg)",
-            }}
+            style={{ background: "var(--c-accent)", color: "var(--c-bg)" }}
           >
             {isBreakdownLoading ? (
               <>
@@ -222,6 +255,7 @@ export default function AIBreakdownPanel({
               <span style={{ color: "var(--c-accent)" }}>({pending.length})</span>
             )}
           </p>
+
           {pending.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-6 text-center">
               <div
@@ -238,29 +272,74 @@ export default function AIBreakdownPanel({
             </div>
           ) : (
             <div className="space-y-2">
-              {pending.map((s) => (
-                <div
-                  key={s.id}
-                  className="rounded-lg p-3 transition-all"
-                  style={{
-                    background: "var(--c-raised)",
-                    border: "1px solid var(--c-border)",
-                  }}
-                >
-                  <span
-                    className="text-[9px] uppercase tracking-wide mb-1 block font-bold"
-                    style={{ color: "var(--c-accent)" }}
+              {pending.map((s) => {
+                const meta = s.metadata as { taskId?: string; userId?: string; score?: number } | undefined;
+                const isRecommendation = s.type === "recommendation";
+                const memberName = meta?.userId ? memberMap[meta.userId] : null;
+                const taskTitle = meta?.taskId ? taskMap[meta.taskId] : null;
+
+                return (
+                  <div
+                    key={s.id}
+                    className="rounded-lg p-3"
+                    style={{
+                      background: "var(--c-raised)",
+                      border: "1px solid var(--c-border)",
+                    }}
                   >
-                    {s.type}
-                  </span>
-                  <p className="text-[11px] font-medium mb-1 leading-tight" style={{ color: "var(--c-text)" }}>
-                    {s.title}
-                  </p>
-                  <p className="text-[11px] line-clamp-3 leading-relaxed" style={{ color: "var(--c-muted)" }}>
-                    {s.body}
-                  </p>
-                </div>
-              ))}
+                    <span
+                      className="text-[9px] uppercase tracking-wide mb-1 block font-bold"
+                      style={{ color: "var(--c-accent)" }}
+                    >
+                      {s.type}
+                      {meta?.score !== undefined && (
+                        <span style={{ color: "var(--c-muted)" }}> · {meta.score}% cocok</span>
+                      )}
+                    </span>
+
+                    {isRecommendation && taskTitle && (
+                      <p className="text-[10px] mb-0.5 truncate" style={{ color: "var(--c-muted)" }}>
+                        Task: <span style={{ color: "var(--c-text)" }}>{taskTitle}</span>
+                      </p>
+                    )}
+                    {isRecommendation && memberName && (
+                      <p className="text-[10px] mb-1" style={{ color: "var(--c-muted)" }}>
+                        Assign ke:{" "}
+                        <span className="font-semibold" style={{ color: "var(--c-text)" }}>
+                          {memberName}
+                        </span>
+                      </p>
+                    )}
+
+                    <p className="text-[11px] line-clamp-2 leading-relaxed mb-2" style={{ color: "var(--c-muted)" }}>
+                      {s.body}
+                    </p>
+
+                    {isRecommendation && meta?.taskId && meta?.userId && (
+                      <button
+                        onClick={() => handleAccept(s)}
+                        disabled={acceptingId === s.id}
+                        className="w-full text-[10px] font-bold py-1.5 rounded-md transition-opacity disabled:opacity-50 flex items-center justify-center gap-1"
+                        style={{ background: "var(--c-accent)", color: "var(--c-bg)" }}
+                      >
+                        {acceptingId === s.id ? (
+                          <>
+                            <span className="w-2.5 h-2.5 border border-black/20 border-t-black rounded-full animate-spin" />
+                            Menerima...
+                          </>
+                        ) : (
+                          <>
+                            <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                              <path d="M2 6l3 3 5-5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Terima & Assign
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
